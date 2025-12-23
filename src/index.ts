@@ -4,9 +4,24 @@ import { createProject } from './createProject.js';
 import { parseArgs } from './utils/parseArgs.js';
 import chalk from 'chalk';
 
+const banner = `
+${chalk.cyan.bold('╔═══════════════════════════════════════════════════════════╗')}
+${chalk.cyan.bold('║')}                                                           ${chalk.cyan.bold('║')}
+${chalk.cyan.bold('║')}  ${chalk.white.bold(' ██████╗ ██████╗ ██████╗ ███████╗')}                        ${chalk.cyan.bold('║')}
+${chalk.cyan.bold('║')}  ${chalk.white.bold('██╔════╝██╔═══██╗██╔══██╗██╔════╝')}                        ${chalk.cyan.bold('║')}
+${chalk.cyan.bold('║')}  ${chalk.white.bold('██║     ██║   ██║██████╔╝█████╗  ')}                        ${chalk.cyan.bold('║')}
+${chalk.cyan.bold('║')}  ${chalk.white.bold('██║     ██║   ██║██╔══██╗██╔══╝  ')}                        ${chalk.cyan.bold('║')}
+${chalk.cyan.bold('║')}  ${chalk.white.bold('╚██████╗╚██████╔╝██████╔╝███████╗')}                        ${chalk.cyan.bold('║')}
+${chalk.cyan.bold('║')}  ${chalk.white.bold(' ╚═════╝ ╚═════╝ ╚═════╝ ╚══════╝')}                        ${chalk.cyan.bold('║')}
+${chalk.cyan.bold('║')}                                                           ${chalk.cyan.bold('║')}
+${chalk.cyan.bold('║')}  ${chalk.gray('     Production-Ready Backend Generator')}                  ${chalk.cyan.bold('║')}
+${chalk.cyan.bold('║')}                                                           ${chalk.cyan.bold('║')}
+${chalk.cyan.bold('╚═══════════════════════════════════════════════════════════╝')}
+`;
+
 async function main() {
   try {
-    console.log(chalk.blue.bold('\n🔥 BackForge - Production-Ready Backend Generator\n'));
+    console.log(banner);
     
     const projectName = parseArgs();
     await createProject(projectName);

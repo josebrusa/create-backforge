@@ -54,5 +54,5 @@ The workflow will trigger and publish automatically.
 
 - You don't need to manually update the version in `package.json`
 - The workflow automatically updates it based on the release tag
-- The package will be published as `create-backforge-josebrusa`
+- The package will be published as `create-coreback`
 

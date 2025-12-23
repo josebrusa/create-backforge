@@ -161,7 +161,7 @@ const options: swaggerJsdoc.Options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'BackForge API',
+      title: 'CoreBack API',
       version: '1.0.0',
       description: 'Production-ready backend API',
     },
@@ -331,7 +331,7 @@ const logFormat = winston.format.combine(
 export const logger = winston.createLogger({
   level: config.NODE_ENV === 'production' ? 'info' : 'debug',
   format: logFormat,
-  defaultMeta: { service: 'backforge-api' },
+  defaultMeta: { service: 'coreback-api' },
   transports: [
     new winston.transports.File({ filename: path.join(logsDir, 'error.log'), level: 'error' }),
     new winston.transports.File({ filename: path.join(logsDir, 'combined.log') }),

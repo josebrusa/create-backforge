@@ -1,10 +1,10 @@
 {
-  "name": "create-backforge-josebrusa",
+  "name": "create-coreback",
   "version": "1.0.0",
   "description": "CLI to generate production-ready backend projects with Node.js, TypeScript and Express",
   "type": "module",
   "bin": {
-    "create-backforge": "./dist/index.js"
+    "create-coreback": "./dist/index.js"
   },
   "main": "./dist/index.js",
   "scripts": {

@@ -1,25 +1,25 @@
-# create-backforge-josebrusa
+# create-coreback
 
 CLI tool to generate production-ready backend projects with Node.js, TypeScript, and Express.
 
 ## Installation
 
 ```bash
-npm install -g create-backforge-josebrusa
+npm install -g create-coreback
 # or
-pnpm add -g create-backforge-josebrusa
+pnpm add -g create-coreback
 # or
-yarn global add create-backforge-josebrusa
+yarn global add create-coreback
 ```
 
 ## Usage
 
 ```bash
 # Interactive mode
-pnpm create backforge-josebrusa
+pnpm create coreback
 
 # With project name
-pnpm create backforge-josebrusa my-api
+pnpm create coreback my-api
 ```
 
 ## Features
