@@ -91,7 +91,14 @@ const envSchema = z.object({
   PORT: z.coerce.number().default(3000),
   DATABASE_URL: z.string(),
 ${config.includeAuth ? `  JWT_SECRET: z.string(),
-  JWT_EXPIRES_IN: z.string().default('7d'),` : ''}
+  JWT_EXPIRES_IN: z.string().default('7d'),
+  EMAIL_HOST: z.string().optional(),
+  EMAIL_PORT: z.coerce.number().optional(),
+  EMAIL_SECURE: z.coerce.boolean().default(false),
+  EMAIL_USER: z.string().optional(),
+  EMAIL_PASSWORD: z.string().optional(),
+  EMAIL_FROM: z.string().default('noreply@coreback.app'),
+  APP_URL: z.string().default('http://localhost:3000'),` : ''}
   RATE_LIMIT_WINDOW_MS: z.coerce.number().default(900000),
   RATE_LIMIT_MAX: z.coerce.number().default(100),
 });
@@ -425,7 +432,7 @@ export { router as healthRoutes };
     const authRoutesContent = `import { Router } from 'express';
 import { authController } from '../controllers/auth.controller.js';
 import { validate } from '../middlewares/validator.js';
-import { registerSchema, loginSchema } from '../validators/auth.validator.js';
+import { registerSchema, loginSchema, emailSchema, resetPasswordSchema } from '../validators/auth.validator.js';
 import { authenticate } from '../middlewares/auth.js';
 
 /**
@@ -514,6 +521,108 @@ router.post('/login', validate(loginSchema), authController.login);
  */
 router.get('/me', authenticate, authController.me);
 
+/**
+ * @swagger
+ * /api/auth/verify-email:
+ *   get:
+ *     summary: Verify email address
+ *     tags: [Auth]
+ *     parameters:
+ *       - in: query
+ *         name: token
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Email verified successfully
+ *       400:
+ *         description: Invalid or expired token
+ */
+router.get('/verify-email', authController.verifyEmail);
+
+/**
+ * @swagger
+ * /api/auth/resend-verification:
+ *   post:
+ *     summary: Resend verification email
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *     responses:
+ *       200:
+ *         description: Verification email sent
+ *       400:
+ *         description: Email already verified
+ */
+router.post('/resend-verification', validate(emailSchema), authController.resendVerification);
+
+/**
+ * @swagger
+ * /api/auth/forgot-password:
+ *   post:
+ *     summary: Request password reset
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *     responses:
+ *       200:
+ *         description: Password reset email sent
+ */
+router.post('/forgot-password', validate(emailSchema), authController.forgotPassword);
+
+/**
+ * @swagger
+ * /api/auth/reset-password:
+ *   post:
+ *     summary: Reset password
+ *     tags: [Auth]
+ *     parameters:
+ *       - in: query
+ *         name: token
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - password
+ *             properties:
+ *               password:
+ *                 type: string
+ *                 minLength: 8
+ *     responses:
+ *       200:
+ *         description: Password reset successfully
+ *       400:
+ *         description: Invalid or expired token
+ */
+router.post('/reset-password', validate(resetPasswordSchema), authController.resetPassword);
+
 export { router as authRoutes };
 `;
 
@@ -549,6 +658,18 @@ export const loginSchema = z.object({
   body: z.object({
     email: z.string().email('Invalid email format'),
     password: z.string().min(1, 'Password is required'),
+  }),
+});
+
+export const emailSchema = z.object({
+  body: z.object({
+    email: z.string().email('Invalid email format'),
+  }),
+});
+
+export const resetPasswordSchema = z.object({
+  body: z.object({
+    password: z.string().min(8, 'Password must be at least 8 characters'),
   }),
 });
 `;
@@ -630,6 +751,77 @@ export const authController = {
       throw new AppError(500, 'Failed to get user');
     }
   },
+
+  verifyEmail: async (req: AuthRequest, res: Response) => {
+    try {
+      const { token } = req.query;
+      if (!token || typeof token !== 'string') {
+        throw new AppError(400, 'Verification token is required');
+      }
+      const result = await authService.verifyEmail(token);
+      res.json({
+        status: 'success',
+        data: result,
+      });
+    } catch (error) {
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError(500, 'Failed to verify email');
+    }
+  },
+
+  resendVerification: async (req: AuthRequest, res: Response) => {
+    try {
+      const { email } = req.body;
+      const result = await authService.resendVerificationEmail(email);
+      res.json({
+        status: 'success',
+        data: result,
+      });
+    } catch (error) {
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError(500, 'Failed to resend verification email');
+    }
+  },
+
+  forgotPassword: async (req: AuthRequest, res: Response) => {
+    try {
+      const { email } = req.body;
+      const result = await authService.requestPasswordReset(email);
+      res.json({
+        status: 'success',
+        data: result,
+      });
+    } catch (error) {
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError(500, 'Failed to send password reset email');
+    }
+  },
+
+  resetPassword: async (req: AuthRequest, res: Response) => {
+    try {
+      const { token } = req.query;
+      const { password } = req.body;
+      if (!token || typeof token !== 'string') {
+        throw new AppError(400, 'Reset token is required');
+      }
+      const result = await authService.resetPassword(token, password);
+      res.json({
+        status: 'success',
+        data: result,
+      });
+    } catch (error) {
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError(500, 'Failed to reset password');
+    }
+  },
 };
 `;
 
@@ -644,9 +836,14 @@ async function generateServices(servicesDir: string, config: ProjectConfig): Pro
   if (config.includeAuth) {
     const authServiceContent = `import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import { config } from '../config/env.js';
 import { userRepository } from '../repositories/user.repository.js';
+import { emailService } from './email.service.js';
 import { AppError } from '../middlewares/errorHandler.js';
+
+const generateVerificationToken = () => crypto.randomBytes(32).toString('hex');
+const generateResetToken = () => crypto.randomBytes(32).toString('hex');
 
 export const authService = {
   async register(email: string, password: string, name?: string) {
@@ -657,25 +854,34 @@ export const authService = {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    const verificationToken = generateVerificationToken();
+    const verificationExpires = new Date();
+    verificationExpires.setHours(verificationExpires.getHours() + 24); // 24 hours
+
     const user = await userRepository.create({
       email,
       password: hashedPassword,
       name,
+      emailVerificationToken: verificationToken,
+      emailVerificationExpires: verificationExpires,
     });
 
-    const token = jwt.sign(
-      { id: user.id, email: user.email },
-      config.JWT_SECRET,
-      { expiresIn: config.JWT_EXPIRES_IN }
-    );
+    // Send verification email
+    try {
+      await emailService.sendVerificationEmail(email, verificationToken, name);
+    } catch (error) {
+      // Log error but don't fail registration
+      console.error('Failed to send verification email:', error);
+    }
 
     return {
       user: {
         id: user.id,
         email: user.email,
         name: user.name,
+        emailVerified: user.emailVerified,
       },
-      token,
+      message: 'Registration successful. Please check your email to verify your account.',
     };
   },
 
@@ -692,6 +898,10 @@ export const authService = {
       throw new AppError(401, 'Invalid credentials');
     }
 
+    if (!user.emailVerified) {
+      throw new AppError(403, 'Please verify your email before logging in');
+    }
+
     const token = jwt.sign(
       { id: user.id, email: user.email },
       config.JWT_SECRET,
@@ -703,8 +913,98 @@ export const authService = {
         id: user.id,
         email: user.email,
         name: user.name,
+        emailVerified: user.emailVerified,
       },
       token,
+    };
+  },
+
+  async verifyEmail(token: string) {
+    const user = await userRepository.findByVerificationToken(token);
+    
+    if (!user) {
+      throw new AppError(400, 'Invalid or expired verification token');
+    }
+
+    await userRepository.updateEmailVerification(user.id, true);
+
+    return {
+      message: 'Email verified successfully',
+    };
+  },
+
+  async resendVerificationEmail(email: string) {
+    const user = await userRepository.findByEmail(email);
+    
+    if (!user) {
+      // Don't reveal if user exists
+      return {
+        message: 'If an account exists with this email, a verification link has been sent.',
+      };
+    }
+
+    if (user.emailVerified) {
+      throw new AppError(400, 'Email is already verified');
+    }
+
+    const verificationToken = generateVerificationToken();
+    const verificationExpires = new Date();
+    verificationExpires.setHours(verificationExpires.getHours() + 24);
+
+    await userRepository.updateVerificationToken(user.id, verificationToken, verificationExpires);
+
+    try {
+      await emailService.sendVerificationEmail(email, verificationToken, user.name || undefined);
+    } catch (error) {
+      console.error('Failed to send verification email:', error);
+      throw new AppError(500, 'Failed to send verification email');
+    }
+
+    return {
+      message: 'Verification email sent',
+    };
+  },
+
+  async requestPasswordReset(email: string) {
+    const user = await userRepository.findByEmail(email);
+    
+    if (!user) {
+      // Don't reveal if user exists
+      return {
+        message: 'If an account exists with this email, a password reset link has been sent.',
+      };
+    }
+
+    const resetToken = generateResetToken();
+    const resetExpires = new Date();
+    resetExpires.setHours(resetExpires.getHours() + 1); // 1 hour
+
+    await userRepository.updatePasswordResetToken(user.id, resetToken, resetExpires);
+
+    try {
+      await emailService.sendPasswordResetEmail(email, resetToken, user.name || undefined);
+    } catch (error) {
+      console.error('Failed to send password reset email:', error);
+      throw new AppError(500, 'Failed to send password reset email');
+    }
+
+    return {
+      message: 'Password reset email sent',
+    };
+  },
+
+  async resetPassword(token: string, newPassword: string) {
+    const user = await userRepository.findByPasswordResetToken(token);
+    
+    if (!user) {
+      throw new AppError(400, 'Invalid or expired reset token');
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await userRepository.updatePassword(user.id, hashedPassword);
+
+    return {
+      message: 'Password reset successfully',
     };
   },
 
@@ -729,6 +1029,118 @@ export const authService = {
     await fs.writeFile(
       path.join(servicesDir, 'auth.service.ts'),
       authServiceContent
+    );
+
+    // email.service.ts
+    const emailServiceContent = `import nodemailer from 'nodemailer';
+import { config } from '../config/env.js';
+
+const createTransporter = () => {
+  // If email is not configured, use a test account (for development)
+  if (!config.EMAIL_HOST) {
+    return nodemailer.createTransporter({
+      host: 'smtp.ethereal.email',
+      port: 587,
+      secure: false,
+      auth: {
+        user: 'test@ethereal.email',
+        pass: 'test',
+      },
+    });
+  }
+
+  return nodemailer.createTransporter({
+    host: config.EMAIL_HOST,
+    port: config.EMAIL_PORT,
+    secure: config.EMAIL_SECURE,
+    auth: config.EMAIL_USER && config.EMAIL_PASSWORD ? {
+      user: config.EMAIL_USER,
+      pass: config.EMAIL_PASSWORD,
+    } : undefined,
+  });
+};
+
+const transporter = createTransporter();
+
+export const emailService = {
+  async sendVerificationEmail(email: string, token: string, name?: string) {
+    const verificationUrl = \`\${config.APP_URL}/api/auth/verify-email?token=\${token}\`;
+    
+    const mailOptions = {
+      from: config.EMAIL_FROM,
+      to: email,
+      subject: 'Verify your email address',
+      html: \`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        </head>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+            <h1 style="color: white; margin: 0;">Welcome to CoreBack!</h1>
+          </div>
+          <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px;">
+            <h2 style="color: #333; margin-top: 0;">Hello \${name || 'there'}!</h2>
+            <p>Thank you for registering. Please verify your email address by clicking the button below:</p>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="\${verificationUrl}" style="background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">Verify Email</a>
+            </div>
+            <p style="color: #666; font-size: 14px;">Or copy and paste this link into your browser:</p>
+            <p style="color: #667eea; font-size: 12px; word-break: break-all;">\${verificationUrl}</p>
+            <p style="color: #666; font-size: 12px; margin-top: 30px;">This link will expire in 24 hours.</p>
+          </div>
+        </body>
+        </html>
+      \`,
+    };
+
+    await transporter.sendMail(mailOptions);
+  },
+
+  async sendPasswordResetEmail(email: string, token: string, name?: string) {
+    const resetUrl = \`\${config.APP_URL}/api/auth/reset-password?token=\${token}\`;
+    
+    const mailOptions = {
+      from: config.EMAIL_FROM,
+      to: email,
+      subject: 'Reset your password',
+      html: \`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        </head>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+            <h1 style="color: white; margin: 0;">Password Reset</h1>
+          </div>
+          <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px;">
+            <h2 style="color: #333; margin-top: 0;">Hello \${name || 'there'}!</h2>
+            <p>You requested to reset your password. Click the button below to reset it:</p>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="\${resetUrl}" style="background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">Reset Password</a>
+            </div>
+            <p style="color: #666; font-size: 14px;">Or copy and paste this link into your browser:</p>
+            <p style="color: #667eea; font-size: 12px; word-break: break-all;">\${resetUrl}</p>
+            <p style="color: #666; font-size: 12px; margin-top: 30px;">This link will expire in 1 hour.</p>
+            <p style="color: #999; font-size: 12px; margin-top: 30px;">If you didn't request this, please ignore this email.</p>
+          </div>
+        </body>
+        </html>
+      \`,
+    };
+
+    await transporter.sendMail(mailOptions);
+  },
+};
+`;
+
+    await fs.writeFile(
+      path.join(servicesDir, 'email.service.ts'),
+      emailServiceContent
     );
   }
 }
@@ -757,15 +1169,80 @@ export const userRepository = {
     });
   },
 
-  async create(data: { email: string; password: string; name?: string }) {
+  async create(data: { email: string; password: string; name?: string; emailVerificationToken?: string; emailVerificationExpires?: Date }) {
     return prisma.user.create({
       data,
       select: {
         id: true,
         email: true,
         name: true,
+        emailVerified: true,
         createdAt: true,
         updatedAt: true,
+      },
+    });
+  },
+
+  async updateEmailVerification(id: string, verified: boolean) {
+    return prisma.user.update({
+      where: { id },
+      data: {
+        emailVerified: verified,
+        emailVerificationToken: null,
+        emailVerificationExpires: null,
+      },
+    });
+  },
+
+  async findByVerificationToken(token: string) {
+    return prisma.user.findFirst({
+      where: {
+        emailVerificationToken: token,
+        emailVerificationExpires: {
+          gt: new Date(),
+        },
+      },
+    });
+  },
+
+  async updateVerificationToken(id: string, token: string, expires: Date) {
+    return prisma.user.update({
+      where: { id },
+      data: {
+        emailVerificationToken: token,
+        emailVerificationExpires: expires,
+      },
+    });
+  },
+
+  async updatePasswordResetToken(id: string, token: string, expires: Date) {
+    return prisma.user.update({
+      where: { id },
+      data: {
+        passwordResetToken: token,
+        passwordResetExpires: expires,
+      },
+    });
+  },
+
+  async findByPasswordResetToken(token: string) {
+    return prisma.user.findFirst({
+      where: {
+        passwordResetToken: token,
+        passwordResetExpires: {
+          gt: new Date(),
+        },
+      },
+    });
+  },
+
+  async updatePassword(id: string, password: string) {
+    return prisma.user.update({
+      where: { id },
+      data: {
+        password,
+        passwordResetToken: null,
+        passwordResetExpires: null,
       },
     });
   },

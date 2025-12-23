@@ -35,6 +35,15 @@ DATABASE_URL="${databaseUrl}"
 # JWT
 JWT_SECRET=your-super-secret-key-change-this-in-production
 JWT_EXPIRES_IN=7d
+
+# Email (Optional - if not configured, uses test account)
+# EMAIL_HOST=smtp.gmail.com
+# EMAIL_PORT=587
+# EMAIL_SECURE=false
+# EMAIL_USER=your-email@gmail.com
+# EMAIL_PASSWORD=your-app-password
+EMAIL_FROM=noreply@coreback.app
+APP_URL=http://localhost:3000
 `;
   }
 

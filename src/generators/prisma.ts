@@ -52,7 +52,12 @@ model User {
 `;
 
   if (config.includeAuth) {
-    schema += `  password  String
+    schema += `  password              String
+  emailVerified         Boolean  @default(false)
+  emailVerificationToken String?
+  emailVerificationExpires DateTime?
+  passwordResetToken    String?
+  passwordResetExpires  DateTime?
 `;
   }
 

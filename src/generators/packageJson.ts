@@ -23,6 +23,7 @@ export async function generatePackageJson(
   if (config.includeAuth) {
     dependencies['jsonwebtoken'] = '^9.0.2';
     dependencies['bcrypt'] = '^5.1.1';
+    dependencies['nodemailer'] = '^6.9.8';
   }
 
   const devDependencies: Record<string, string> = {
@@ -32,6 +33,7 @@ export async function generatePackageJson(
     '@types/node': '^20.11.5',
     '@types/jsonwebtoken': '^9.0.5',
     '@types/bcrypt': '^5.0.2',
+    '@types/nodemailer': '^6.4.14',
     '@types/swagger-jsdoc': '^6.0.4',
     '@types/swagger-ui-express': '^4.1.6',
     '@types/jest': '^29.5.11',
