@@ -52,8 +52,15 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add package.json package-lock.json
-          git commit -m "chore: bump version to ${{ steps.version.outputs.version }}" || exit 0
-          git push origin HEAD:main || exit 0
+          # Only commit if there are changes
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: bump version to ${{ steps.version.outputs.version }}"
+            # Pull latest changes before pushing
+            git pull --rebase origin main || true
+            git push origin HEAD:main
+          fi
       
       - name: Install dependencies
         run: npm ci
@@ -61,8 +68,17 @@ jobs:
       - name: Build project
         run: npm run build
       
+      - name: Verify NPM authentication
+        run: |
+          if [ -z "${{ secrets.NPM_TOKEN }}" ]; then
+            echo "Error: NPM_TOKEN secret is not set"
+            exit 1
+          fi
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+          npm whoami || (echo "Error: NPM authentication failed" && exit 1)
+      
       - name: Publish to NPM
-        run: npm publish --access public
+        run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
