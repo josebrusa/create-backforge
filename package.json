@@ -1,6 +1,6 @@
 {
   "name": "create-coreback",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "CLI to generate production-ready backend projects with Node.js, TypeScript and Express",
   "type": "module",
   "bin": {
