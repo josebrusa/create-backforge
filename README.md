@@ -1,25 +1,25 @@
-# @cli/create-backforge
+# @josebrusa/create-backforge
 
 CLI tool to generate production-ready backend projects with Node.js, TypeScript, and Express.
 
 ## Installation
 
 ```bash
-npm install -g @cli/create-backforge
+npm install -g @josebrusa/create-backforge
 # or
-pnpm add -g @cli/create-backforge
+pnpm add -g @josebrusa/create-backforge
 # or
-yarn global add @cli/create-backforge
+yarn global add @josebrusa/create-backforge
 ```
 
 ## Usage
 
 ```bash
 # Interactive mode
-pnpm create @cli/backforge
+pnpm create @josebrusa/backforge
 
 # With project name
-pnpm create @cli/backforge my-api
+pnpm create @josebrusa/backforge my-api
 ```
 
 ## Features
