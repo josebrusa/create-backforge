@@ -3,9 +3,6 @@ name: Publish to NPM
 on:
   release:
     types: [published]
-  push:
-    tags:
-      - 'v*.*.*'
 
 jobs:
   publish:
@@ -28,11 +25,7 @@ jobs:
       - name: Extract version from tag
         id: version
         run: |
-          if [ "${{ github.event_name }}" == "release" ]; then
-            VERSION="${{ github.event.release.tag_name }}"
-          else
-            VERSION="${{ github.ref_name }}"
-          fi
+          VERSION="${{ github.event.release.tag_name }}"
           # Remove 'v' prefix if present
           VERSION=${VERSION#v}
           echo "version=$VERSION" >> $GITHUB_OUTPUT
@@ -75,5 +68,11 @@ jobs:
           npm view create-backforge-josebrusa --json 2>&1 | head -20 || echo "Paquete no existe aún o no se puede acceder"
           echo "=== Verificando versión en package.json ==="
           cat package.json | grep '"version"'
+          echo "=== Verificando si la versión ya existe ==="
+          CURRENT_VERSION=$(cat package.json | grep '"version"' | cut -d'"' -f4)
+          if npm view create-backforge-josebrusa@$CURRENT_VERSION version 2>/dev/null; then
+            echo "⚠️  La versión $CURRENT_VERSION ya existe en npm. Saltando publicación."
+            exit 0
+          fi
           echo "=== Intentando publicar ==="
           npm publish --access public
