@@ -1,16 +1,28 @@
 import inquirer from 'inquirer';
-import chalk from 'chalk';
+
 import { ProjectConfig, DatabaseType, PackageManager } from './types.js';
 
 export async function promptProjectConfig(
   defaultName?: string
 ): Promise<ProjectConfig> {
+  // If project name is provided as argument, use it directly without prompting
+  const projectName = defaultName 
+    ? defaultName.toLowerCase().trim()
+    : undefined;
+
+  // Validate the provided name if it exists
+  if (projectName) {
+    if (!/^[a-z0-9-]+$/.test(projectName)) {
+      throw new Error('Project name must be lowercase, alphanumeric, and can contain hyphens');
+    }
+  }
+
   const answers = await inquirer.prompt([
-    {
+    ...(projectName ? [] : [{
       type: 'input',
       name: 'projectName',
       message: 'Project name:',
-      default: defaultName || 'my-backend',
+      default: 'my-project',
       validate: (input: string) => {
         if (!input.trim()) {
           return 'Project name cannot be empty';
@@ -21,7 +33,7 @@ export async function promptProjectConfig(
         return true;
       },
       filter: (input: string) => input.toLowerCase().trim(),
-    },
+    }]),
     {
       type: 'list',
       name: 'database',
@@ -57,6 +69,9 @@ export async function promptProjectConfig(
     },
   ]);
 
-  return answers as ProjectConfig;
+  return {
+    ...answers,
+    projectName: projectName || answers.projectName,
+  } as ProjectConfig;
 }
 

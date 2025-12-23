@@ -19,7 +19,7 @@ yarn global add create-coreback
 pnpm create coreback
 
 # With project name
-pnpm create coreback my-api
+pnpm create coreback my-project
 ```
 
 ## Features
@@ -37,7 +37,7 @@ pnpm create coreback my-api
 ## Generated Project Structure
 
 ```
-my-backend/
+my-project/
 ├── src/
 │   ├── config/           # Configuration files
 │   ├── controllers/      # HTTP handlers
