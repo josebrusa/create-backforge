@@ -4,7 +4,8 @@
   "description": "CLI to generate production-ready backend projects with Node.js, TypeScript and Express",
   "type": "module",
   "bin": {
-    "create-coreback": "./dist/index.js"
+    "create-coreback": "./dist/index.js",
+    "coreback": "./dist/index.js"
   },
   "main": "./dist/index.js",
   "scripts": {
