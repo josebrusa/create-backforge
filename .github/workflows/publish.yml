@@ -42,7 +42,16 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add package.json package-lock.json
+          # Detect lock file type
+          LOCK_FILES="package.json"
+          if [ -f "package-lock.json" ]; then
+            LOCK_FILES="$LOCK_FILES package-lock.json"
+          elif [ -f "pnpm-lock.yaml" ]; then
+            LOCK_FILES="$LOCK_FILES pnpm-lock.yaml"
+          elif [ -f "yarn.lock" ]; then
+            LOCK_FILES="$LOCK_FILES yarn.lock"
+          fi
+          git add $LOCK_FILES
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
