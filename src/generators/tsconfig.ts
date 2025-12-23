@@ -1,0 +1,34 @@
+import fs from 'fs-extra';
+import path from 'path';
+
+export async function generateTsConfig(projectPath: string): Promise<void> {
+  const tsconfig = {
+    compilerOptions: {
+      target: 'ES2022',
+      module: 'ES2022',
+      lib: ['ES2022'],
+      moduleResolution: 'node',
+      outDir: './dist',
+      rootDir: './src',
+      strict: true,
+      esModuleInterop: true,
+      skipLibCheck: true,
+      forceConsistentCasingInFileNames: true,
+      resolveJsonModule: true,
+      declaration: true,
+      declarationMap: true,
+      sourceMap: true,
+      baseUrl: '.',
+      paths: {
+        '@/*': ['src/*'],
+      },
+    },
+    include: ['src/**/*'],
+    exclude: ['node_modules', 'dist', 'tests'],
+  };
+
+  await fs.writeJSON(path.join(projectPath, 'tsconfig.json'), tsconfig, {
+    spaces: 2,
+  });
+}
+
