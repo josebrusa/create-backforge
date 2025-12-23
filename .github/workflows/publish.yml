@@ -64,19 +64,22 @@ jobs:
         id: pkg-manager
         run: |
           if [ -f "pnpm-lock.yaml" ]; then
-            echo "manager=pnpm" >> $GITHUB_OUTPUT
-            echo "install_cmd=pnpm install --frozen-lockfile" >> $GITHUB_OUTPUT
-            echo "build_cmd=pnpm run build" >> $GITHUB_OUTPUT
+            MANAGER="pnpm"
+            INSTALL_CMD="pnpm install --frozen-lockfile"
+            BUILD_CMD="pnpm run build"
           elif [ -f "yarn.lock" ]; then
-            echo "manager=yarn" >> $GITHUB_OUTPUT
-            echo "install_cmd=yarn install --frozen-lockfile" >> $GITHUB_OUTPUT
-            echo "build_cmd=yarn run build" >> $GITHUB_OUTPUT
+            MANAGER="yarn"
+            INSTALL_CMD="yarn install --frozen-lockfile"
+            BUILD_CMD="yarn run build"
           else
-            echo "manager=npm" >> $GITHUB_OUTPUT
-            echo "install_cmd=npm ci" >> $GITHUB_OUTPUT
-            echo "build_cmd=npm run build" >> $GITHUB_OUTPUT
+            MANAGER="npm"
+            INSTALL_CMD="npm ci"
+            BUILD_CMD="npm run build"
           fi
-          echo "Detected package manager: ${{ steps.pkg-manager.outputs.manager }}"
+          echo "manager=$MANAGER" >> $GITHUB_OUTPUT
+          echo "install_cmd=$INSTALL_CMD" >> $GITHUB_OUTPUT
+          echo "build_cmd=$BUILD_CMD" >> $GITHUB_OUTPUT
+          echo "Detected package manager: $MANAGER"
       
       - name: Setup package manager
         if: steps.pkg-manager.outputs.manager == 'pnpm'
