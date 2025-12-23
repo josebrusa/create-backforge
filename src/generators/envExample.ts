@@ -53,6 +53,34 @@ RATE_LIMIT_WINDOW_MS=900000
 RATE_LIMIT_MAX=100
 `;
 
+  if (config.includeFileUpload) {
+    envContent += `
+# File Upload
+MAX_FILE_SIZE=5242880
+ALLOWED_FILE_TYPES=image/jpeg,image/png,image/gif,application/pdf
+UPLOAD_DIR=uploads
+`;
+    if (config.fileStorage === 's3') {
+      envContent += `
+# AWS S3 (if using S3 storage)
+AWS_REGION=us-east-1
+AWS_ACCESS_KEY_ID=your-access-key-id
+AWS_SECRET_ACCESS_KEY=your-secret-access-key
+AWS_S3_BUCKET=your-bucket-name
+`;
+    }
+  }
+
+  if (config.includeRedis) {
+    envContent += `
+# Redis
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=
+REDIS_DB=0
+`;
+  }
+
   await fs.writeFile(path.join(projectPath, '.env.example'), envContent);
 }
 

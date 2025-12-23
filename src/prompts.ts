@@ -1,6 +1,6 @@
 import inquirer from 'inquirer';
 
-import { ProjectConfig, DatabaseType, PackageManager } from './types.js';
+import { ProjectConfig, DatabaseType, PackageManager, FileStorageType } from './types.js';
 
 export async function promptProjectConfig(
   defaultName?: string
@@ -58,6 +58,37 @@ export async function promptProjectConfig(
       default: true,
     },
     {
+      type: 'confirm',
+      name: 'includeFileUpload',
+      message: 'Include file upload system?',
+      default: true,
+    },
+    {
+      type: 'list',
+      name: 'fileStorage',
+      message: 'Select file storage type:',
+      choices: [
+        { name: 'Local Storage', value: 'local' },
+        { name: 'AWS S3 / Cloud Storage', value: 's3' },
+        { name: 'None', value: 'none' },
+      ],
+      when: (answers) => answers.includeFileUpload,
+      default: 'local',
+    },
+    {
+      type: 'confirm',
+      name: 'includeRedis',
+      message: 'Include Redis (caching, sessions, queues)?',
+      default: true,
+    },
+    {
+      type: 'confirm',
+      name: 'includeQueue',
+      message: 'Include queue system (background jobs)?',
+      default: true,
+      when: (answers) => answers.includeRedis,
+    },
+    {
       type: 'list',
       name: 'packageManager',
       message: 'Select package manager:',
@@ -72,6 +103,10 @@ export async function promptProjectConfig(
   return {
     ...answers,
     projectName: projectName || answers.projectName,
+    includeFileUpload: answers.includeFileUpload ?? false,
+    fileStorage: answers.fileStorage || 'none',
+    includeRedis: answers.includeRedis ?? false,
+    includeQueue: answers.includeQueue ?? false,
   } as ProjectConfig;
 }
 

@@ -36,8 +36,11 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=\${DATABASE_URL}
-    depends_on:
+      - DATABASE_URL=\${DATABASE_URL}${config.includeRedis ? `
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379` : ''}
+    depends_on:${config.includeRedis ? `
+      - redis` : ''}
 `;
 
   switch (config.database) {
@@ -60,7 +63,20 @@ services:
       - backend
 
 volumes:
+  postgres_data:${config.includeRedis ? `
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - backend
+
+volumes:
   postgres_data:
+  redis_data:` : ''}
 
 networks:
   backend:
@@ -86,7 +102,20 @@ networks:
       - backend
 
 volumes:
+  mysql_data:${config.includeRedis ? `
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - backend
+
+volumes:
   mysql_data:
+  redis_data:` : ''}
 
 networks:
   backend:
@@ -107,20 +136,48 @@ networks:
       - backend
 
 volumes:
+  mongo_data:${config.includeRedis ? `
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - backend
+
+volumes:
   mongo_data:
+  redis_data:` : ''}
 
 networks:
   backend:
 `;
       break;
     default:
-      dockerCompose += `      - app
+      dockerCompose += `${config.includeRedis ? `      - redis
+` : ''}    networks:
+      - backend
+${config.includeRedis ? `
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
     networks:
       - backend
 
+volumes:
+  redis_data:
+
 networks:
   backend:
-`;
+` : `
+networks:
+  backend:
+`}`;
   }
 
   await fs.writeFile(

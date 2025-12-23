@@ -9,3 +9,6 @@ dist/
 docs/
 landing/
 
+# Test results
+TEST_RESULTS.md
+

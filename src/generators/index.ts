@@ -8,7 +8,7 @@ import { generatePrettierConfig } from './prettier.js';
 import { generateJestConfig } from './jest.js';
 import { generateDockerFiles } from './docker.js';
 import { generatePrismaSchema } from './prisma.js';
-import { generateSourceFiles } from './sourceFiles.js';
+import { generateSourceFiles } from './sourceFiles/index.js';
 import { generateGitHubActions } from './githubActions.js';
 import { generateCursorRules } from './cursorRules.js';
 import path from 'path';
