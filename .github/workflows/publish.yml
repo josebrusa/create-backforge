@@ -72,7 +72,7 @@ jobs:
           echo "=== Verificando autenticación ==="
           npm whoami || (echo "ERROR: No se pudo autenticar con NPM" && exit 1)
           echo "=== Verificando información del paquete ==="
-          npm view @josebrusa/create-backforge --json 2>&1 | head -20 || echo "Paquete no existe aún o no se puede acceder"
+          npm view create-backforge-josebrusa --json 2>&1 | head -20 || echo "Paquete no existe aún o no se puede acceder"
           echo "=== Verificando versión en package.json ==="
           cat package.json | grep '"version"'
           echo "=== Intentando publicar ==="

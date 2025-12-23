@@ -1,5 +1,5 @@
 {
-  "name": "@josebrusa/create-backforge",
+  "name": "create-backforge-josebrusa",
   "version": "1.0.0",
   "description": "CLI to generate production-ready backend projects with Node.js, TypeScript and Express",
   "type": "module",
