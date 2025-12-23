@@ -60,11 +60,35 @@ jobs:
             git push origin HEAD:main || echo "Push failed, continuing..."
           fi
       
+      - name: Detect package manager
+        id: pkg-manager
+        run: |
+          if [ -f "pnpm-lock.yaml" ]; then
+            echo "manager=pnpm" >> $GITHUB_OUTPUT
+            echo "install_cmd=pnpm install --frozen-lockfile" >> $GITHUB_OUTPUT
+            echo "build_cmd=pnpm run build" >> $GITHUB_OUTPUT
+          elif [ -f "yarn.lock" ]; then
+            echo "manager=yarn" >> $GITHUB_OUTPUT
+            echo "install_cmd=yarn install --frozen-lockfile" >> $GITHUB_OUTPUT
+            echo "build_cmd=yarn run build" >> $GITHUB_OUTPUT
+          else
+            echo "manager=npm" >> $GITHUB_OUTPUT
+            echo "install_cmd=npm ci" >> $GITHUB_OUTPUT
+            echo "build_cmd=npm run build" >> $GITHUB_OUTPUT
+          fi
+          echo "Detected package manager: ${{ steps.pkg-manager.outputs.manager }}"
+      
+      - name: Setup package manager
+        if: steps.pkg-manager.outputs.manager == 'pnpm'
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      
       - name: Install dependencies
-        run: npm ci
+        run: ${{ steps.pkg-manager.outputs.install_cmd }}
       
       - name: Build project
-        run: npm run build
+        run: ${{ steps.pkg-manager.outputs.build_cmd }}
       
       - name: Publish to NPM
         env:
