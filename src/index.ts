@@ -7,20 +7,20 @@ import chalk from 'chalk';
 const banner = `
 ${chalk.cyan.bold('╔═══════════════════════════════════════════════════════════════╗')}
 ${chalk.cyan.bold('║')}                                                               ${chalk.cyan.bold('║')}
-${chalk.cyan.bold('║')}      ${chalk.white.bold(' ██████╗ ██████╗ ██████╗ ███████╗')}                      ${chalk.cyan.bold('║')}
-${chalk.cyan.bold('║')}      ${chalk.white.bold('██╔════╝██╔═══██╗██╔══██╗██╔════╝')}                      ${chalk.cyan.bold('║')}
-${chalk.cyan.bold('║')}      ${chalk.white.bold('██║     ██║   ██║██████╔╝█████╗  ')}                      ${chalk.cyan.bold('║')}
-${chalk.cyan.bold('║')}      ${chalk.white.bold('██║     ██║   ██║██╔══██╗██╔══╝  ')}                      ${chalk.cyan.bold('║')}
-${chalk.cyan.bold('║')}      ${chalk.white.bold('╚██████╗╚██████╝ ██║  ██║███████╗')}                      ${chalk.cyan.bold('║')}
+${chalk.cyan.bold('║')}      ${chalk.white.bold(' ██████╗ ██████╗ ██████╗ ███████╗')}                        ${chalk.cyan.bold('║')}
+${chalk.cyan.bold('║')}      ${chalk.white.bold('██╔════╝██╔═══██╗██╔══██╗██╔════╝')}                        ${chalk.cyan.bold('║')}
+${chalk.cyan.bold('║')}      ${chalk.white.bold('██║     ██║   ██║██████╔╝█████╗  ')}                        ${chalk.cyan.bold('║')}
+${chalk.cyan.bold('║')}      ${chalk.white.bold('██║     ██║   ██║██╔══██╗██╔══╝  ')}                        ${chalk.cyan.bold('║')}
+${chalk.cyan.bold('║')}      ${chalk.white.bold('╚██████╗╚██████╝ ██║  ██║███████╗')}                        ${chalk.cyan.bold('║')}
 ${chalk.cyan.bold('║')}                                                               ${chalk.cyan.bold('║')}
-${chalk.cyan.bold('║')}      ${chalk.white.bold('██████╗  █████╗  ██████╗██╗  ██╗')}                      ${chalk.cyan.bold('║')}
-${chalk.cyan.bold('║')}      ${chalk.white.bold('██╔══██╗██╔══██╗██╔════╝██║ ██╔╝')}                      ${chalk.cyan.bold('║')}
-${chalk.cyan.bold('║')}      ${chalk.white.bold('██████╔╝███████║██║     █████╔╝ ')}                      ${chalk.cyan.bold('║')}
-${chalk.cyan.bold('║')}      ${chalk.white.bold('██╔══██╗██╔══██║██║     ██╔═██╗ ')}                      ${chalk.cyan.bold('║')}
-${chalk.cyan.bold('║')}      ${chalk.white.bold('██████╔╝██║  ██║╚██████╗██║  ██╗')}                      ${chalk.cyan.bold('║')}
-${chalk.cyan.bold('║')}      ${chalk.white.bold('╚═════╝ ╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝')}                      ${chalk.cyan.bold('║')}
+${chalk.cyan.bold('║')}      ${chalk.white.bold('██████╗  █████╗  ██████╗██╗  ██╗')}                         ${chalk.cyan.bold('║')}
+${chalk.cyan.bold('║')}      ${chalk.white.bold('██╔══██╗██╔══██╗██╔════╝██║ ██╔╝')}                         ${chalk.cyan.bold('║')}
+${chalk.cyan.bold('║')}      ${chalk.white.bold('██████╔╝███████║██║     █████╔╝ ')}                         ${chalk.cyan.bold('║')}
+${chalk.cyan.bold('║')}      ${chalk.white.bold('██╔══██╗██╔══██║██║     ██╔═██╗ ')}                         ${chalk.cyan.bold('║')}
+${chalk.cyan.bold('║')}      ${chalk.white.bold('██████╔╝██║  ██║╚██████╗██║  ██╗')}                         ${chalk.cyan.bold('║')}
+${chalk.cyan.bold('║')}      ${chalk.white.bold('╚═════╝ ╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝')}                         ${chalk.cyan.bold('║')}
 ${chalk.cyan.bold('║')}                                                               ${chalk.cyan.bold('║')}
-${chalk.cyan.bold('║')}      ${chalk.gray('     Production-Ready Backend Generator')}                  ${chalk.cyan.bold('║')}
+${chalk.cyan.bold('║')}                                                               ${chalk.cyan.bold('║')}
 ${chalk.cyan.bold('║')}                                                               ${chalk.cyan.bold('║')}
 ${chalk.cyan.bold('╚═══════════════════════════════════════════════════════════════╝')}
 `;

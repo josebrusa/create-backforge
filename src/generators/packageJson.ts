@@ -7,17 +7,17 @@ export async function generatePackageJson(
   config: ProjectConfig
 ): Promise<void> {
   const dependencies: Record<string, string> = {
-    express: '^4.18.2',
-    'express-rate-limit': '^7.1.5',
+    express: '^4.21.1',
+    'express-rate-limit': '^8.2.1',
     cors: '^2.8.5',
-    helmet: '^7.1.0',
-    compression: '^1.7.4',
-    dotenv: '^16.4.1',
-    zod: '^3.22.4',
-    winston: '^3.11.0',
-    '@prisma/client': '^5.9.1',
+    helmet: '^8.1.0',
+    compression: '^1.8.1',
+    dotenv: '^17.2.3',
+    zod: '^3.25.76',
+    winston: '^3.19.0',
+    '@prisma/client': '^5.22.0',
     'swagger-jsdoc': '^6.2.8',
-    'swagger-ui-express': '^5.0.0',
+    'swagger-ui-express': '^5.0.1',
   };
 
   if (config.includeAuth) {
@@ -27,27 +27,27 @@ export async function generatePackageJson(
   }
 
   const devDependencies: Record<string, string> = {
-    '@types/express': '^4.17.21',
-    '@types/cors': '^2.8.17',
-    '@types/compression': '^1.7.5',
-    '@types/node': '^20.11.5',
-    '@types/jsonwebtoken': '^9.0.5',
+    '@types/express': '^4.17.25',
+    '@types/cors': '^2.8.19',
+    '@types/compression': '^1.8.1',
+    '@types/node': '^20.19.27',
+    '@types/jsonwebtoken': '^9.0.10',
     '@types/bcrypt': '^5.0.2',
     '@types/nodemailer': '^6.4.14',
     '@types/swagger-jsdoc': '^6.0.4',
-    '@types/swagger-ui-express': '^4.1.6',
-    '@types/jest': '^29.5.11',
-    '@types/supertest': '^6.0.2',
-    '@typescript-eslint/eslint-plugin': '^6.19.1',
-    '@typescript-eslint/parser': '^6.19.1',
-    eslint: '^8.56.0',
-    prettier: '^3.2.4',
-    'ts-jest': '^29.1.2',
-    jest: '^29.7.0',
-    supertest: '^6.3.4',
-    tsx: '^4.7.1',
-    typescript: '^5.3.3',
-    prisma: '^5.9.1',
+    '@types/swagger-ui-express': '^4.1.8',
+    '@types/jest': '^29.5.14',
+    '@types/supertest': '^6.0.3',
+    '@typescript-eslint/eslint-plugin': '^8.50.1',
+    '@typescript-eslint/parser': '^8.50.1',
+    eslint: '^8.57.1',
+    prettier: '^3.7.4',
+    'ts-jest': '^29.4.6',
+    jest: '^30.2.0',
+    supertest: '^7.1.4',
+    tsx: '^4.21.0',
+    typescript: '^5.9.3',
+    prisma: '^5.22.0',
   };
 
   const packageJson = {
