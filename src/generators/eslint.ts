@@ -2,37 +2,34 @@ import fs from 'fs-extra';
 import path from 'path';
 
 export async function generateEslintConfig(projectPath: string): Promise<void> {
-  const eslintConfig = {
-    parser: '@typescript-eslint/parser',
-    parserOptions: {
+  // ESLint 9 uses flat config format
+  const eslintConfig = `import js from '@eslint/js';
+import tseslint from 'typescript-eslint';
+
+export default tseslint.config(
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
+  {
+    languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
-      project: './tsconfig.json',
+      parserOptions: {
+        project: './tsconfig.json',
+      },
     },
-    plugins: ['@typescript-eslint'],
-    extends: [
-      'eslint:recommended',
-      'plugin:@typescript-eslint/recommended',
-      'plugin:@typescript-eslint/recommended-requiring-type-checking',
-    ],
-    root: true,
-    env: {
-      node: true,
-      jest: true,
-    },
-    ignorePatterns: ['.eslintrc.json', 'dist', 'node_modules'],
     rules: {
-      '@typescript-eslint/interface-name-prefix': 'off',
-      '@typescript-eslint/explicit-function-return-type': 'off',
-      '@typescript-eslint/explicit-module-boundary-types': 'off',
       '@typescript-eslint/no-explicit-any': 'warn',
     },
-  };
+  },
+  {
+    ignores: ['dist', 'node_modules', '*.js'],
+  }
+);
+`;
 
-  await fs.writeJSON(
-    path.join(projectPath, '.eslintrc.json'),
-    eslintConfig,
-    { spaces: 2 }
+  await fs.writeFile(
+    path.join(projectPath, 'eslint.config.js'),
+    eslintConfig
   );
 }
 
